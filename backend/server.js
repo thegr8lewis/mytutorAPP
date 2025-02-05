@@ -4,6 +4,7 @@ const sequelize = require('./database'); // Import Sequelize connection
 const AuthRoutes = require('./routes/authRoutes/authRoutes');
 const StudentDashRoutes = require('./routes/studentDashRoutes/studentDashRoutes');
 const TutorDashRoutes = require('./routes/tutorDashRoutes/tutorDashRoutes');
+const cors = require("cors");
 
 const app = express();
 
@@ -13,6 +14,14 @@ app.use((req, res, next) => {
     console.log(`Path: ${req.path}, Method: ${req.method}`);
     next();
 });
+
+//enable CORS with specific origin
+app.use(cors({
+    origin: 'http://localhost:5173', 
+    methods: 'GET,POST,PUT,DELETE',
+    allowedHeaders: 'Content-Type,Authorization'
+  }));
+
 
 // Routes
 app.use('/api/mytutor/auth', AuthRoutes);
