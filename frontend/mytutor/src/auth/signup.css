@@ -1,0 +1,145 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Full-Page Layout */
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #f7f7f7;
+  }
+  
+  /* Main container */
+  .signup-container {
+    display: flex;
+    width: 900px;
+    height:650px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Left side - Welcome section */
+  .signup-container .welcome-section {
+    background: linear-gradient(135deg, #ffaf7b, #d76d77, #3a1c71);
+    color: white;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+  }
+  
+  .welcome-section h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    text-align: center;
+  }
+  
+  /* Right side - Form section */
+  .signup-container .form-section {
+    background: white;
+    flex: 1;
+    padding: 3rem 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .form-section h2 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+  
+  .form-section p {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Form styling */
+  .form-section form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  
+  .form-section input,
+  .form-section select {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+  
+  .form-section input:focus,
+  .form-section select:focus {
+    border-color: #7f5af0;
+    box-shadow: 0 0 8px rgba(127, 90, 240, 0.3);
+    outline: none;
+  }
+  
+  /* Signup Button */
+  .form-section button {
+    background: #7f5af0;
+    color: #fff;
+    padding: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .form-section button:hover {
+    background: #5b4dc5;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(127, 90, 240, 0.3);
+  }
+  
+  /* Login link */
+  .form-section .login-link {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #aaa;
+  }
+  
+  .login-link a {
+    color: #7f5af0;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .login-link a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .signup-container {
+      flex-direction: column;
+      height: auto;
+      width: 90%;
+    }
+  
+    .welcome-section {
+      display: none; /* Hide the welcome section on smaller screens */
+    }
+  
+    .form-section {
+      padding: 2rem;
+    }
+  }
+  

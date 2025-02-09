@@ -3,15 +3,20 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../../models/user');
 const Tutor = require('../../models/tutor');
+const Student = require('../../models/student');
 require('dotenv').config();
 
 const router = express.Router();
-
 
 // ✅ Register User
 router.post('/register', async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
+
+        // Validate role
+        if (!['tutor', 'student'].includes(role)) {
+            return res.status(400).json({ message: 'Invalid role specified' });
+        }
 
         // Check if user already exists
         const existingUser = await User.findOne({ where: { email } });
@@ -31,50 +36,54 @@ router.post('/register', async (req, res) => {
             role
         });
 
-        // If the user is a tutor, create a corresponding tutor record
+        let token;
+        let responseData = { message: 'User registered successfully' };
+
         if (role === 'tutor') {
+            // Create tutor record
             const tutor = await Tutor.create({
-                user_id: newUser.user_id, // Link to the users table
-                full_name: username, // Use the same name as the username
-                age: null, // Default age (can be updated later)
-                sex: null, // Default sex
-                location: '', // Default location
-                qualifications: '', // Default qualifications
-                subjects_offered: '' // Default subjects
+                user_id: newUser.user_id,
+                full_name: username,
+                age: null,
+                sex: null,
+                location: '',
+                qualifications: '',
+                subjects_offered: ''
             });
 
-            // Generate a JWT token for the tutor
-            const token = jwt.sign(
+            token = jwt.sign(
                 { user_id: newUser.user_id, role: newUser.role, tutor_id: tutor.tutor_id },
                 process.env.JWT_SECRET,
                 { expiresIn: '1h' }
             );
 
-            return res.status(201).json({
-                message: 'User registered successfully',
-                token, // Send token in the response
-                tutor_id: tutor.tutor_id, // Send tutor_id for tutor users
+            responseData.token = token;
+            responseData.tutor_id = tutor.tutor_id;
+        } else if (role === 'student') {
+            // Create student record
+            const student = await Student.create({
+                user_id: newUser.user_id,
+                full_name: username,
+                age: null,
+                sex: null,
+                location: ''
             });
-        } else {
-            // Generate a JWT token for the student
-            const token = jwt.sign(
-                { user_id: newUser.user_id, role: newUser.role },
+
+            token = jwt.sign(
+                { user_id: newUser.user_id, role: newUser.role, student_id: student.student_id },
                 process.env.JWT_SECRET,
                 { expiresIn: '1h' }
             );
 
-            return res.status(201).json({
-                message: 'User registered successfully',
-                token, // Send token in the response
-            });
+            responseData.token = token;
+            responseData.student_id = student.student_id;
         }
 
+        return res.status(201).json(responseData);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
-
-
 
 // ✅ Login User
 router.post('/login', async (req, res) => {
@@ -88,55 +97,33 @@ router.post('/login', async (req, res) => {
         }
 
         // Compare password
-        const isMatch = await bcrypt.compare(password, user.password_hash); // Using password_hash field
+        const isMatch = await bcrypt.compare(password, user.password_hash);
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
         // Generate JWT
-        const token = jwt.sign({ id: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' }); // Using user_id as id
+        let payload = { user_id: user.user_id, role: user.role };
+        let responseData = { message: 'Login successful', role: user.role };
 
-        // Default response data
-        const responseData = {
-            message: 'Login successful',
-            role: user.role,
-            token,
-            // tutor_id: null  // Default to null
-        };
-
-        // If user is a tutor, fetch the tutor ID
         if (user.role === 'tutor') {
-            const tutor = await Tutor.findOne({ where: { user_id: user.user_id } }); // Ensure user_id is used correctly
-            console.log('Tutor Lookup Result:', tutor);  // Debugging log
-            responseData.tutor_id = tutor ? tutor.tutor_id : null; // Use correct field
+            const tutor = await Tutor.findOne({ where: { user_id: user.user_id } });
+            payload.tutor_id = tutor ? tutor.tutor_id : null;
+            responseData.tutor_id = tutor ? tutor.tutor_id : null;
+        } else if (user.role === 'student') {
+            const student = await Student.findOne({ where: { user_id: user.user_id } });
+            payload.student_id = student ? student.student_id : null;
+            responseData.student_id = student ? student.student_id : null;
         }
 
-        console.log('Response Data:', responseData);  // Debugging response before sending it
-    
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+        responseData.token = token;
+
         res.json(responseData);
     } catch (error) {
         console.error('Login Error:', error);
         res.status(500).json({ error: error.message });
     }
 });
-
-
-// ✅ Get User Profile (Protected Route)
-// router.get('/profile', async (req, res) => {
-//     try {
-//         const token = req.headers.authorization?.split(' ')[1];
-//         if (!token) return res.status(401).json({ message: 'Unauthorized' });
-
-//         // Verify token
-//         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//         const user = await User.findByPk(decoded.id, { attributes: { exclude: ['password_hash'] } }); // Exclude password_hash
-
-//         if (!user) return res.status(404).json({ message: 'User not found' });
-
-//         res.json(user);
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// });
 
 module.exports = router;

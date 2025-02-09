@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast'; // Import Toaster for toast notifications
+import { Toaster } from 'react-hot-toast'; 
 
 // Import components (ensure paths are correct)
 import Home from '/src/components/home';
@@ -29,6 +29,7 @@ const App = () => {
           <Route path="/tutordash" element={<TutorDash />} />
           <Route path="/tutordash/:id" element={<TutorDash />} />
           <Route path="/studentdash" element={<StudentDash />} />
+          <Route path="/studentdash/:id" element={<StudentDash />} />
         </Routes>
       </div>
     </Router>
